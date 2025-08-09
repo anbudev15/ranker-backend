@@ -2,6 +2,7 @@ package com.resume.ranker.service.Impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.resume.ranker.dto.ResumeUploadRequest;
 import com.resume.ranker.model.Resume;
 import com.resume.ranker.repository.ResumeRepository;
 import com.resume.ranker.service.ResumeService;
@@ -24,22 +25,15 @@ public class ResumeServiceImpl implements ResumeService {
     @Value("${resume.upload.dir}")
     private String uploadDir;
 
-    @Override
-    public Resume saveResume( MultipartFile file,String name, String email) throws IOException {
+    public void saveResume(MultipartFile file, ResumeUploadRequest request) throws IOException {
         String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
         File savedFile = new File(uploadDir + File.separator + fileName);
         try (FileOutputStream fos = new FileOutputStream(savedFile)) {
             fos.write(file.getBytes());
         }
-//        File directory = new File(uploadDir);
-//        if (!directory.exists()) {
-//            directory.mkdirs(); // creates directory if not present
-//        }
-//
-//        File savedFile = new File(directory, fileName);
         Resume resume = new Resume();
-        resume.setName(name);
-        resume.setEmail(email);
+        resume.setName(request.getName());
+        resume.setEmail(request.getEmail());
         resume.setResumePath(savedFile.getAbsolutePath());
         resume.setSkills("");
         resume.setScore(0.0);
@@ -47,7 +41,7 @@ public class ResumeServiceImpl implements ResumeService {
         String skillString = String.join(", ", skills);
         resume.setSkills(skillString);
 
-        return resumeRepository.save(resume);
+        resumeRepository.save(resume);
     }
 
     @Override

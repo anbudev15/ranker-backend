@@ -1,8 +1,10 @@
 package com.resume.ranker.controller;
 
+import com.resume.ranker.dto.ResumeUploadRequest;
 import com.resume.ranker.model.Resume;
 import com.resume.ranker.service.ResumeService;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,17 +23,11 @@ public class ResumeController {
 
     @PostMapping("/upload")
     public ResponseEntity<String> uploadResume(
-            @RequestParam String name,
-            @RequestParam String email,
+            @Valid @ModelAttribute ResumeUploadRequest request,
             @RequestParam MultipartFile file) throws IOException {
 
         try {
-            // Step 1: Save resume and create initial Resume object
-            Resume savedResume = resumeService.saveResume(file, name, email);
-
-            // Step 2: Extract skills + score using Python script
-//            resumeService.processResumeWithPython(savedResume);
-
+             resumeService.saveResume(file, request);
             return ResponseEntity.ok("Resume uploaded and processed successfully!");
         } catch (Exception e) {
             return ResponseEntity.status(500)
